@@ -1,0 +1,35 @@
+#row {
+	width: 3000px;
+	height: 300em;
+	overflow: auto;
+	display: inline-block;
+	padding:15 ;
+   }
+
+.output {
+    padding: 0;
+    width: 1150px;
+    height: 500px;
+    max-height: 14.5em; /* 1.5 x 3 */
+    overflow: scroll;
+    background-color:white;
+    display: None;
+}
+
+.output li {
+    font-size: 1em;
+    padding: .25em 1em;
+    line-height: 1em;
+}
+
+#loading {
+    width: 335px;
+    height: 35px;
+    display: none;
+    background: url(/static/loader.gif) no-repeat;
+    cursor: wait;
+    }
+
+#form {
+    display: inline-block;
+}

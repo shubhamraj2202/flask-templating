@@ -1,0 +1,23 @@
+<title>Downloads</title>
+{% include 'base.html' %}
+
+<div class="container"></div>
+{% for audit in output %}
+{% set title = audit %}
+<link rel = "stylesheet" type = "text/css" href = "static/css/.css" />
+  <div class=row id="row">
+    <div class="col-sm-4"" style="display: inline-block; padding:15px;"> 
+      <h3 class="display-1">{{ title }}</h3>
+      <hr class="my-4">
+      <p class="lead">
+            <ul class="list-group">
+              {% for file in output[audit] %}
+              {% set file_name = file[0] %}
+              {% set path = file[1] %}
+              {% include 'download_delete.html' %}
+              {% endfor %}
+            </ul> 
+      </p>
+    </div>
+ {% endfor %}
+</div>

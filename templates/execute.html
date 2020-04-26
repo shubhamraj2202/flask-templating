@@ -1,0 +1,94 @@
+<title>Audit I</title>
+{% include 'base.html' %}  
+<link rel = "stylesheet" type = "text/css" href = "/static/css/main.css" />
+<row>
+<form method="post" name="form" action="/audit" enctype="multipart/form-data" accept=".xlsx" id="form">
+    <dl>
+      <h4>Upload 1st file.</h4>
+      <input type="file" name="file1" id="file1" autocomplete="off" required>
+    </dl>
+    <dl>
+      <h4>Upload 2nd file.</h4>
+      <input type="file" name="file2" id="file2" autocomplete="off" required>
+    </dl>
+    <p>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class=flashes>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </p>
+    <button type="submit" class="btn btn-primary" id="submit">Submit</button>
+    <button type="reset" class="btn btn-primary" id="reset">Reset</button>
+</form>
+    <button class="btn btn-primary" id="show-logs">View Logs</button>
+</row>
+
+<div id="loading" class="loading"></div>
+
+{% if file_name %}
+{% include 'download_delete.html' %}
+{% endif %}
+
+<p style="font-size: 16px"> Progress: <span id="latest">{{ progress }}</span></p>
+<ul id="output" class="output">
+  {% for entry in runtime_log %}
+  <li>{{ entry }}</li>
+  {% endfor %}
+</ul>
+
+<script>
+  var position = 1;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', "{{ url_for('stream') }}");
+  xhr.send();
+  var latest = document.getElementById('latest');
+  var output = document.getElementById('output');
+  document.getElementById("show-logs").addEventListener("click", function () {
+    if (window.getComputedStyle(output).display == "none"){
+      $('#output').show();
+      output.scrollTop = output.scrollHeight;
+    }
+    else{
+      $('#output').hide();
+    }
+  });
+  document.getElementById("submit").addEventListener("click", function () {
+      var file1 = $('#file1').val()
+      var file2 = $('#file2').val()
+      if (file1.endsWith('.xlsx') && file2.endsWith('.xlsx')){
+      $("#loading").show();
+      latest.textContent =  "Audit Started..";
+      output.textContent = ""
+    }
+  });
+      function handleNewData() {
+          // the response text include the entire response so far
+          // split the messages, then take the messages that haven't been handled yet
+          // position tracks how many messages have been handled
+          // messages end with a newline, so split will always show one extra empty message at the end
+          var messages = xhr.responseText.split('\n');    
+          messages.slice(position, -1).forEach(function(value) {
+              latest.textContent = value;  // update the latest value in place
+              // build and append a new item to a list to log all output
+              var item = document.createElement('li');
+              item.textContent = value;
+              output.appendChild(item);
+          });
+          position = messages.length - 1;
+      }
+      var timer;
+      timer = setInterval(function() {
+          // check the response for new data
+          handleNewData();
+          // stop checking once the response has ended
+          if (xhr.readyState == XMLHttpRequest.DONE) {
+              clearInterval(timer);
+              //latest.textContent = 'Done';
+          }
+      }, 0000);
+</script>
